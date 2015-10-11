@@ -21,6 +21,9 @@ import com.maxspeedtracker.data.TrackerDAO;
 import com.maxspeedtracker.interfaces.TrackerListener;
 import com.maxspeedtracker.services.LocationService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class SpeedTracker {
     private Activity activity;
     private TrackerListener trackerListener;
@@ -57,10 +60,23 @@ public class SpeedTracker {
     };
 
     public SpeedTracker(Activity activity, TrackerListener trackerListener) {
+        this(activity, trackerListener, false);
+    }
+
+    /**
+     * @param activity The target activity.
+     * @param trackerListener Listener to be notified on data changes.
+     * @param restoreTracking If true, attempts to restore the service.
+     */
+    public SpeedTracker(Activity activity, TrackerListener trackerListener, boolean restoreTracking) {
         this.activity = activity;
         this.trackerListener = trackerListener;
         tracker = new TrackerDAO(activity);
-        this.restoreTracker();
+        if (restoreTracking) {
+            this.restoreTracker();
+        } else {
+            this.bindService();
+        }
     }
 
     /**
@@ -129,6 +145,14 @@ public class SpeedTracker {
         return tracker.getCurrentTrack();
     }
 
+    public ArrayList<HashMap<String, Object>> getTracks() {
+        return tracker.getTracks();
+    }
+
+    public void clearTracks() {
+        tracker.clearTracks();
+    }
+
     /**
      * Binds the main activity from the service
      */
@@ -173,7 +197,7 @@ public class SpeedTracker {
      *
      * TODO allow to change between kps and mps
      */
-    private float formatSpeed(float speed) {
+    public float formatSpeed(float speed) {
         return (float) (speed * 3.6);
     }
 

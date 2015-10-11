@@ -6,4 +6,8 @@
     <string name="show_history">Show History</string>
     <string name="no_current_tracks">No Current Tracks</string>
     <string name="kph">KM/H</string>
+    <string name="clear_history">Clear History</string>
+    <string name="history_cleared">History cleared</string>
+    <string name="status_tracking">Tracking</string>
+    <string name="status_paused">Paused</string>
 </resources>

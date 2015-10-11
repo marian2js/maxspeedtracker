@@ -1,5 +1,6 @@
 package com.maxspeedtracker.activities;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.maxspeedtracker.R;
 import com.maxspeedtracker.interfaces.TrackerListener;
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements TrackerListener {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        speedTracker = new SpeedTracker(this, this);
+        speedTracker = new SpeedTracker(this, this, true);
         updateStateUI();
     }
 
@@ -40,6 +40,12 @@ public class MainActivity extends AppCompatActivity implements TrackerListener {
     protected void onPause() {
         speedTracker.unbindService();
         super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        updateStateUI();
+        super.onResume();
     }
 
     @Override
@@ -188,8 +194,8 @@ public class MainActivity extends AppCompatActivity implements TrackerListener {
     }
 
     public void onShowHistoryClicked(View view) {
-        // TODO
-        Toast.makeText(this, "Not Implemented Yet", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, HistoryListActivity.class);
+        this.startActivity(intent);
     }
 
     @Override

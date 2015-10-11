@@ -4,16 +4,19 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class TrackerDAO {
     public static final int STATE_STOPPED = 0;
     public static final int STATE_PAUSED = 1;
     public static final int STATE_TRACKING = 2;
 
-    private final String SP_KEY = "tracks";
-    private final String TRACKING_STATE_KEY = "tracking_state";
-    private final String CURRENT_TRACK_KEY = "current_track";
-    private final String CURRENT_SPEED_KEY = "current_speed";
-    private final String MAX_SPEED_KEY = "max_speed_";
+    public static final String SP_KEY = "tracks";
+    public static final String TRACKING_STATE_KEY = "tracking_state";
+    public static final String CURRENT_TRACK_KEY = "current_track";
+    public static final String CURRENT_SPEED_KEY = "current_speed";
+    public static final String MAX_SPEED_KEY = "max_speed_";
     private SharedPreferences sp;
     private SharedPreferences.Editor editor;
 
@@ -60,7 +63,7 @@ public class TrackerDAO {
     }
 
     public int getCurrentTrack() {
-        return sp.getInt(CURRENT_TRACK_KEY, 0);
+        return sp.getInt(CURRENT_TRACK_KEY, 1);
     }
 
     private void setCurrentTrack(int track, boolean apply) {
@@ -71,7 +74,7 @@ public class TrackerDAO {
     }
 
     public int getTrackingState() {
-        return sp.getInt(TRACKING_STATE_KEY, 0);
+        return sp.getInt(TRACKING_STATE_KEY, STATE_STOPPED);
     }
 
     private void setTrackingState(int state) {
@@ -99,6 +102,44 @@ public class TrackerDAO {
         this.setCurrentSpeed(0, false);
         this.setCurrentTrack(++currentTrack, false);
         this.setTrackingState(TrackerDAO.STATE_STOPPED);
+    }
+
+    /**
+     * Returns a list of tracks stored, including the current one
+     */
+    public ArrayList<HashMap<String, Object>> getTracks() {
+        ArrayList<HashMap<String, Object>> tracks = new ArrayList<>();
+        int currentTrack = this.getCurrentTrack();
+
+        // If there is a current track, include it in the list
+        if (this.getTrackingState() != STATE_STOPPED) {
+            currentTrack++;
+        }
+
+        for (int i = 1; i < currentTrack; i++) {
+            HashMap<String, Object> track = new HashMap<>();
+            float maxSpeed = this.getMaxSpeed(i);
+            track.put(CURRENT_TRACK_KEY, i);
+            track.put(MAX_SPEED_KEY, maxSpeed);
+            tracks.add(track);
+        }
+        return tracks;
+    }
+
+    /**
+     * Clears all the tracks except the current one
+     */
+    public void clearTracks() {
+        float currentMaxSpeed = this.getMaxSpeed();
+        int trackingState = this.getTrackingState();
+        editor.clear();
+        editor.apply();
+
+        // Restore the current state and max speed
+        if (trackingState != STATE_STOPPED) {
+            this.setMaxSpeed(currentMaxSpeed, false);
+        }
+        this.setTrackingState(trackingState);
     }
 
 }
