@@ -1,6 +1,7 @@
 package com.maxspeedtracker.logic;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,12 +17,13 @@ import android.os.RemoteException;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import com.maxspeedtracker.activities.MainActivity;
 import com.maxspeedtracker.data.TrackerDAO;
+import com.maxspeedtracker.interfaces.TrackerListener;
 import com.maxspeedtracker.services.LocationService;
 
 public class SpeedTracker {
-    private MainActivity mainActivity;
+    private Activity activity;
+    private TrackerListener trackerListener;
     private Intent locationIntent = null;
     private TrackerDAO tracker;
     private Messenger messenger = new Messenger(new IncomingHandler());
@@ -54,10 +56,10 @@ public class SpeedTracker {
         }
     };
 
-    public SpeedTracker(MainActivity mainActivity) {
-        Log.d(TAG, "SpeedTracker");
-        this.mainActivity = mainActivity;
-        tracker = new TrackerDAO(mainActivity);
+    public SpeedTracker(Activity activity, TrackerListener trackerListener) {
+        this.activity = activity;
+        this.trackerListener = trackerListener;
+        tracker = new TrackerDAO(activity);
         this.restoreTracker();
     }
 
@@ -82,7 +84,7 @@ public class SpeedTracker {
         Log.d(TAG, "Start Speed Track");
         tracker.onStart();
         this.bindService();
-        mainActivity.startService(locationIntent);
+        activity.startService(locationIntent);
     }
 
     /**
@@ -132,9 +134,9 @@ public class SpeedTracker {
      */
     private void bindService() {
         if (locationIntent == null) {
-            locationIntent = new Intent(mainActivity, LocationService.class);
+            locationIntent = new Intent(activity, LocationService.class);
         }
-        mainActivity.bindService(locationIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        activity.bindService(locationIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         serviceBound = true;
     }
 
@@ -143,7 +145,7 @@ public class SpeedTracker {
      */
     public void unbindService() {
         try {
-            mainActivity.unbindService(serviceConnection);
+            activity.unbindService(serviceConnection);
             serviceBound = false;
         } catch (Exception e) { }
     }
@@ -153,9 +155,9 @@ public class SpeedTracker {
      */
     public void stopService() {
         if (locationIntent == null) {
-            locationIntent = new Intent(mainActivity, LocationService.class);
+            locationIntent = new Intent(activity, LocationService.class);
         }
-        mainActivity.stopService(locationIntent);
+        activity.stopService(locationIntent);
         this.unbindService();
     }
 
@@ -163,7 +165,7 @@ public class SpeedTracker {
      * Called when the current speed is updated
      */
     private void onSpeedChanged() {
-        mainActivity.updateDataUI();
+        trackerListener.onTrackerDataUpdated();
     }
 
     /**
@@ -182,8 +184,8 @@ public class SpeedTracker {
      */
     public boolean permissionsGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            boolean grantedFineLocation = mainActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-            boolean grantedCoarseLocation = mainActivity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            boolean grantedFineLocation = activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            boolean grantedCoarseLocation = activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
             return grantedFineLocation && grantedCoarseLocation;
         }
         return true;
@@ -195,7 +197,7 @@ public class SpeedTracker {
      */
     public void requestPermissions() {
         Log.d(TAG, "Request Permissions");
-        ActivityCompat.requestPermissions(mainActivity, PERMISSIONS_REQUEST, PERMISSIONS_REQUEST_CODE);
+        ActivityCompat.requestPermissions(activity, PERMISSIONS_REQUEST, PERMISSIONS_REQUEST_CODE);
     }
 
     /**
@@ -204,7 +206,7 @@ public class SpeedTracker {
      * @link http://stackoverflow.com/a/5921190/2246938
      */
     private boolean isLocationServiceRunning() {
-        ActivityManager manager = (ActivityManager) mainActivity.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager manager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (LocationService.class.getName().equals(service.service.getClassName())) {
                 return true;

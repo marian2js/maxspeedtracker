@@ -16,11 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.maxspeedtracker.R;
+import com.maxspeedtracker.interfaces.TrackerListener;
 import com.maxspeedtracker.logic.SpeedTracker;
 
 import java.text.DecimalFormat;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TrackerListener {
     private SpeedTracker speedTracker;
     private Snackbar snackbar = null;
     private static final String TAG = "MainActivity";
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        speedTracker = new SpeedTracker(this);
+        speedTracker = new SpeedTracker(this, this);
         updateStateUI();
     }
 
@@ -189,6 +190,11 @@ public class MainActivity extends AppCompatActivity {
     public void onShowHistoryClicked(View view) {
         // TODO
         Toast.makeText(this, "Not Implemented Yet", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onTrackerDataUpdated() {
+        this.updateDataUI();
     }
 
     @Override
