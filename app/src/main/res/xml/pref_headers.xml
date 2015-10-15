@@ -8,6 +8,6 @@
 
     <header
         android:fragment="com.maxspeedtracker.activities.SettingsActivity$LocationPreferenceFragment"
-        android:title="@string/pref_header_location" android:icon="@drawable/ic_sync_black_24dp" />
+        android:title="@string/pref_header_location" android:icon="@drawable/ic_room_black_24dp" />
 
 </preference-headers>
