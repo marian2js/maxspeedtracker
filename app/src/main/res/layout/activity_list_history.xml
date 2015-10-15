@@ -5,24 +5,25 @@
 
     <ListView
         android:id="@android:id/list"
-        android:layout_height="match_parent"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_above="@+id/clearHistory" />
 
-    <Button android:id="@+id/clearHistory"
+    <Button
+        android:id="@+id/clearHistory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/clear_history"
+        android:layout_alignParentBottom="true"
         android:onClick="onClearHistoryClicked"
-        android:layout_alignParentBottom="true"/>
+        android:text="@string/clear_history" />
 
     <TextView
+        android:id="@+id/noCurrentTracks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/no_current_tracks"
-        android:id="@+id/noCurrentTracks"
+        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:text="@string/no_current_tracks"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

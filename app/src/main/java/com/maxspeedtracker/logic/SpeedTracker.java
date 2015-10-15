@@ -26,6 +26,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SpeedTracker {
+    public static final int PERMISSIONS_REQUEST_CODE = 100;
+    private static final String[] PERMISSIONS_REQUEST = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
+    private static final String TAG = "SpeedTracker";
     private Activity activity;
     private TrackerListener trackerListener;
     private Intent locationIntent = null;
@@ -33,13 +39,6 @@ public class SpeedTracker {
     private SettingsDAO settings;
     private Messenger messenger = new Messenger(new IncomingHandler());
     private boolean serviceBound = false;
-    private static final String[] PERMISSIONS_REQUEST = {
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-    };
-    public static final int PERMISSIONS_REQUEST_CODE = 100;
-    private static final String TAG = "SpeedTracker";
-
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
@@ -66,7 +65,7 @@ public class SpeedTracker {
     }
 
     /**
-     * @param activity The target activity.
+     * @param activity        The target activity.
      * @param trackerListener Listener to be notified on data changes.
      * @param restoreTracking If true, attempts to restore the service.
      */
@@ -77,7 +76,7 @@ public class SpeedTracker {
         this.settings = new SettingsDAO(activity);
         if (restoreTracking) {
             this.restoreTracker();
-        } else if(this.isTracking()) {
+        } else if (this.isTracking()) {
             this.bindService();
         }
     }
@@ -174,7 +173,8 @@ public class SpeedTracker {
         try {
             activity.unbindService(serviceConnection);
             serviceBound = false;
-        } catch (Exception e) { }
+        } catch (Exception e) {
+        }
     }
 
     /**

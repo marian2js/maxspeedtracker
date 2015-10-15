@@ -1,24 +1,24 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ListPreference
-        android:key="location_mode"
-        android:title="@string/pref_mode"
+        android:defaultValue="@string/pref_mode_default"
         android:entries="@array/pref_mode_titles"
         android:entryValues="@array/pref_mode_values"
-        android:defaultValue="@string/pref_mode_default"
+        android:key="location_mode"
         android:negativeButtonText="@null"
-        android:positiveButtonText="@null" />
+        android:positiveButtonText="@null"
+        android:title="@string/pref_mode" />
 
     <EditTextPreference
-        android:key="location_time"
-        android:title="@string/pref_location_time"
         android:defaultValue="@string/pref_location_time_default"
-        android:inputType="number" />
+        android:inputType="number"
+        android:key="location_time"
+        android:title="@string/pref_location_time" />
 
     <EditTextPreference
-        android:key="location_distance"
-        android:title="@string/pref_location_distance"
         android:defaultValue="@string/pref_location_distance_default"
-        android:inputType="number" />
+        android:inputType="number"
+        android:key="location_distance"
+        android:title="@string/pref_location_distance" />
 
 </PreferenceScreen>

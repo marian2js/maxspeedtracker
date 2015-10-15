@@ -20,19 +20,29 @@ import com.maxspeedtracker.data.TrackerDAO;
 import java.util.ArrayList;
 
 public class LocationService extends Service implements LocationListener {
+    public static final int MSG_REGISTER_CLIENT = 1;
+    public static final int MSG_SPEED_CHANGED = 2;
+    private static final String TAG = "LocationService";
+    private static long minUpdateTime = 1000 * 5;
+    private static float minUpdateDistance = 1;
+    private static int mode = 2;
     private LocationManager locationManager;
     private TrackerDAO tracker;
     private ArrayList<Messenger> clients = new ArrayList<>();
     private Messenger messenger = new Messenger(new IncomingHandler());
     private int lastMode;
 
-    private static long minUpdateTime = 1000 * 5;
-    private static float minUpdateDistance = 1;
-    private static int mode = 2;
+    public static void setMode(int m) {
+        mode = m;
+    }
 
-    public static final int MSG_REGISTER_CLIENT = 1;
-    public static final int MSG_SPEED_CHANGED = 2;
-    private static final String TAG = "LocationService";
+    public static void setMinUpdateTime(long time) {
+        minUpdateTime = time * 1000;
+    }
+
+    public static void setMinUpdateDistance(float distance) {
+        minUpdateDistance = distance;
+    }
 
     @Override
     public void onCreate() {
@@ -81,34 +91,6 @@ public class LocationService extends Service implements LocationListener {
         }
     }
 
-    /**
-     * Handle messages from clients
-     */
-    class IncomingHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_REGISTER_CLIENT:
-                    clients.add(msg.replyTo);
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-    }
-
-    public static void setMode(int m) {
-        mode = m;
-    }
-
-    public static void setMinUpdateTime(long time) {
-        minUpdateTime = time * 1000;
-    }
-
-    public static void setMinUpdateDistance(float distance) {
-        minUpdateDistance = distance;
-    }
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -141,5 +123,21 @@ public class LocationService extends Service implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    /**
+     * Handle messages from clients
+     */
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_REGISTER_CLIENT:
+                    clients.add(msg.replyTo);
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
     }
 }

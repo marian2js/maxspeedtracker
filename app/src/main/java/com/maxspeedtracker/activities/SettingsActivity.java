@@ -34,37 +34,33 @@ import java.util.List;
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
     private static final String TAG = "SettingsActivity";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setupActionBar();
-    }
-
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    private void setupActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // Show the Up button in the action bar.
-            actionBar.setDisplayHomeAsUpEnabled(true);
+    private static Preference.OnPreferenceChangeListener onChangeListener = new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object value) {
+            boolean bindPreferenceSummary = false;
+            switch (preference.getKey()) {
+                case "speed_units":
+                    onPreferenceChanged(preference, value);
+                    break;
+                case "enabled_history":
+                    onEnabledHistoryChanged(preference, value);
+                    break;
+                case "location_mode":
+                    onLocationModeChanged(preference, value);
+                    onPreferenceChanged(preference, value);
+                    break;
+                case "location_time":
+                    onLocationTimeChanged(preference, value);
+                    onPreferenceChanged(preference, value);
+                    break;
+                case "location_distance":
+                    onLocationDistanceChanged(preference, value);
+                    onPreferenceChanged(preference, value);
+                    break;
+            }
+            return true;
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onIsMultiPane() {
-        return isXLargeTablet(this);
-    }
+    };
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -73,15 +69,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     private static boolean isXLargeTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.pref_headers, target);
     }
 
     /**
@@ -135,34 +122,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         LocationService.setMinUpdateDistance(val);
     }
 
-    private static Preference.OnPreferenceChangeListener onChangeListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            boolean bindPreferenceSummary = false;
-            switch (preference.getKey()) {
-                case "speed_units":
-                    onPreferenceChanged(preference, value);
-                    break;
-                case "enabled_history":
-                    onEnabledHistoryChanged(preference, value);
-                    break;
-                case "location_mode":
-                    onLocationModeChanged(preference, value);
-                    onPreferenceChanged(preference, value);
-                    break;
-                case "location_time":
-                    onLocationTimeChanged(preference, value);
-                    onPreferenceChanged(preference, value);
-                    break;
-                case "location_distance":
-                    onLocationDistanceChanged(preference, value);
-                    onPreferenceChanged(preference, value);
-                    break;
-            }
-            return true;
-        }
-    };
-
     private static void setChangeListener(Preference preference, boolean bindSummary) {
         preference.setOnPreferenceChangeListener(onChangeListener);
 
@@ -175,6 +134,46 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                             .getString(preference.getKey(), ""));
         }
 
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setupActionBar();
+    }
+
+    /**
+     * Set up the {@link android.app.ActionBar}, if the API is available.
+     */
+    private void setupActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Show the Up button in the action bar.
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean onIsMultiPane() {
+        return isXLargeTablet(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void onBuildHeaders(List<Header> target) {
+        loadHeadersFromResource(R.xml.pref_headers, target);
     }
 
     /**

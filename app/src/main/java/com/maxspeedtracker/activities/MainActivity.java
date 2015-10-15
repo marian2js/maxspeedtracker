@@ -24,10 +24,10 @@ import com.maxspeedtracker.logic.SpeedTracker;
 import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity implements TrackerListener {
+    private static final String TAG = "MainActivity";
     private SpeedTracker speedTracker;
     private SettingsDAO settings;
     private Snackbar snackbar = null;
-    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements TrackerListener {
         if (snackbar != null) {
             snackbar.dismiss();
         }
-        
+
         speedTracker.stopTracking();
         this.updateStateUI();
     }

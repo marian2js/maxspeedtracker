@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class HistoryListActivity extends ListActivity implements TrackerListener {
+    private static final String TAG = "HistoryListActivity";
     private SpeedTracker speedTracker;
     private SettingsDAO settings;
-    private static final String TAG = "HistoryListActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
