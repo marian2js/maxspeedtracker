@@ -77,7 +77,7 @@ public class SpeedTracker {
         this.settings = new SettingsDAO(activity);
         if (restoreTracking) {
             this.restoreTracker();
-        } else {
+        } else if(this.isTracking()) {
             this.bindService();
         }
     }
