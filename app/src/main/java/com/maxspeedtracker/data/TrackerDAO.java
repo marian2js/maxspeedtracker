@@ -19,9 +19,11 @@ public class TrackerDAO {
     public static final String MAX_SPEED_KEY = "max_speed_";
     private SharedPreferences sp;
     private SharedPreferences.Editor editor;
+    private SettingsDAO settings;
 
     @SuppressLint("CommitPrefEdits")
     public TrackerDAO(Context context) {
+        settings = new SettingsDAO(context);
         sp = context.getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
         editor = sp.edit();
     }
@@ -100,7 +102,11 @@ public class TrackerDAO {
     public void onStop() {
         int currentTrack = this.getCurrentTrack();
         this.setCurrentSpeed(0, false);
-        this.setCurrentTrack(++currentTrack, false);
+        if (settings.isHistoryEnabled()) {
+            this.setCurrentTrack(++currentTrack, false);
+        } else {
+            editor.putFloat(MAX_SPEED_KEY + currentTrack, 0);
+        }
         this.setTrackingState(TrackerDAO.STATE_STOPPED);
     }
 
@@ -126,19 +132,25 @@ public class TrackerDAO {
         return tracks;
     }
 
+    public void clearTracks() {
+        this.clearTracks(true);
+    }
+
     /**
      * Clears all the tracks except the current one
      */
-    public void clearTracks() {
+    public void clearTracks(boolean restore) {
         float currentMaxSpeed = this.getMaxSpeed();
         int trackingState = this.getTrackingState();
         editor.clear();
         editor.apply();
 
-        // Restore the current state and max speed
-        if (trackingState != STATE_STOPPED) {
+        // Restore the max speed
+        if (restore && trackingState != STATE_STOPPED) {
             this.setMaxSpeed(currentMaxSpeed, false);
         }
+
+        // Restore the current state
         this.setTrackingState(trackingState);
     }
 

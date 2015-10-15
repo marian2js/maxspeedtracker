@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.maxspeedtracker.R;
+import com.maxspeedtracker.data.SettingsDAO;
 import com.maxspeedtracker.data.TrackerDAO;
 import com.maxspeedtracker.interfaces.TrackerListener;
 import com.maxspeedtracker.logic.SpeedTracker;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 
 public class HistoryListActivity extends ListActivity implements TrackerListener {
     private SpeedTracker speedTracker;
+    private SettingsDAO settings;
     private static final String TAG = "HistoryListActivity";
 
     @Override
@@ -28,6 +30,7 @@ public class HistoryListActivity extends ListActivity implements TrackerListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_history);
         speedTracker = new SpeedTracker(this, this);
+        settings = new SettingsDAO(this);
         this.createList();
     }
 
@@ -74,7 +77,7 @@ public class HistoryListActivity extends ListActivity implements TrackerListener
                 String text2 = getResources().getString(R.string.max_speed);
                 text1 = String.format(text1, trackNumber);
                 text2 = String.format(text2, new DecimalFormat("#.#").format(maxSpeed));
-                text2 += " " + getResources().getString(R.string.kph);
+                text2 += " " + settings.getSpeedUnitsText();
 
                 // If the track is not stopped, show the current state
                 if (trackNumber == currentTrack) {

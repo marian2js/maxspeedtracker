@@ -12,10 +12,12 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.maxspeedtracker.R;
+import com.maxspeedtracker.data.SettingsDAO;
 import com.maxspeedtracker.interfaces.TrackerListener;
 import com.maxspeedtracker.logic.SpeedTracker;
 
@@ -23,6 +25,7 @@ import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity implements TrackerListener {
     private SpeedTracker speedTracker;
+    private SettingsDAO settings;
     private Snackbar snackbar = null;
     private static final String TAG = "MainActivity";
 
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements TrackerListener {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         speedTracker = new SpeedTracker(this, this, true);
+        settings = new SettingsDAO(this);
         updateStateUI();
     }
 
@@ -68,9 +72,9 @@ public class MainActivity extends AppCompatActivity implements TrackerListener {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            // TODO
+            Intent intent = new Intent(this, SettingsActivity.class);
+            this.startActivity(intent);
             return true;
         }
 
@@ -109,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements TrackerListener {
         FloatingActionButton fabStop = (FloatingActionButton) findViewById(R.id.fab_stop);
         TextView trackNumberText = (TextView) findViewById(R.id.trackNumber);
         TextView maxSpeedText = (TextView) findViewById(R.id.maxSpeed);
+        TextView currentSpeedUnitsText = (TextView) findViewById(R.id.currentSpeedUnits);
+        Button history = (Button) findViewById(R.id.history);
         String trackNumberStr;
 
         if (speedTracker.isTracking()) {
@@ -130,6 +136,9 @@ public class MainActivity extends AppCompatActivity implements TrackerListener {
             maxSpeedText.setVisibility(View.VISIBLE);
         }
         trackNumberText.setText(trackNumberStr);
+        currentSpeedUnitsText.setText(settings.getSpeedUnitsText());
+        history.setVisibility(settings.isHistoryEnabled() ? View.VISIBLE : View.INVISIBLE);
+        trackNumberText.setVisibility(settings.isHistoryEnabled() ? View.VISIBLE : View.INVISIBLE);
         this.updateDataUI();
     }
 
@@ -159,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements TrackerListener {
         if (maxSpeed > 0) {
             String strMaxSpeed = getResources().getString(R.string.max_speed);
             strMaxSpeed = String.format(strMaxSpeed, new DecimalFormat("#.#").format(maxSpeed));
-            strMaxSpeed += " " + getResources().getString(R.string.kph);
+            strMaxSpeed += " " + settings.getSpeedUnitsText();
             maxSpeedText.setText(strMaxSpeed);
             maxSpeedText.setVisibility(View.VISIBLE);
         } else {

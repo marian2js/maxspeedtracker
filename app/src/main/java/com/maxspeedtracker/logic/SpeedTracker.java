@@ -17,6 +17,7 @@ import android.os.RemoteException;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.maxspeedtracker.data.SettingsDAO;
 import com.maxspeedtracker.data.TrackerDAO;
 import com.maxspeedtracker.interfaces.TrackerListener;
 import com.maxspeedtracker.services.LocationService;
@@ -29,6 +30,7 @@ public class SpeedTracker {
     private TrackerListener trackerListener;
     private Intent locationIntent = null;
     private TrackerDAO tracker;
+    private SettingsDAO settings;
     private Messenger messenger = new Messenger(new IncomingHandler());
     private boolean serviceBound = false;
     private static final String[] PERMISSIONS_REQUEST = {
@@ -72,6 +74,7 @@ public class SpeedTracker {
         this.activity = activity;
         this.trackerListener = trackerListener;
         tracker = new TrackerDAO(activity);
+        this.settings = new SettingsDAO(activity);
         if (restoreTracking) {
             this.restoreTracker();
         } else {
@@ -193,12 +196,21 @@ public class SpeedTracker {
     }
 
     /**
-     * Format a speed represented in m/s to km/h
-     *
-     * TODO allow to change between kps and mps
+     * Format a speed represented in the corresponding unit
      */
     public float formatSpeed(float speed) {
-        return (float) (speed * 3.6);
+        double multiplier;
+        switch (settings.getSpeedUnits()) {
+            case "kph":
+                multiplier = 3.6;
+                break;
+            case "mph":
+                multiplier = 2.23;
+                break;
+            default:
+                multiplier = 1;
+        }
+        return (float) (speed * multiplier);
     }
 
     /**

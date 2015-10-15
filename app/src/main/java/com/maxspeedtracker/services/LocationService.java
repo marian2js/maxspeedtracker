@@ -13,8 +13,8 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.maxspeedtracker.data.SettingsDAO;
 import com.maxspeedtracker.data.TrackerDAO;
 
 import java.util.ArrayList;
@@ -24,16 +24,25 @@ public class LocationService extends Service implements LocationListener {
     private TrackerDAO tracker;
     private ArrayList<Messenger> clients = new ArrayList<>();
     private Messenger messenger = new Messenger(new IncomingHandler());
+    private int lastMode;
+
+    private static long minUpdateTime = 1000 * 5;
+    private static float minUpdateDistance = 1;
+    private static int mode = 2;
+
     public static final int MSG_REGISTER_CLIENT = 1;
     public static final int MSG_SPEED_CHANGED = 2;
-    private static final long MIN_UPDATE_TIME = 1000 * 5;
-    private static final float MIN_UPDATE_DISTANCE = 1;
     private static final String TAG = "LocationService";
 
     @Override
     public void onCreate() {
+        SettingsDAO settings = new SettingsDAO(this);
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         tracker = new TrackerDAO(this);
+        setMode(settings.getLocationMode());
+        setMinUpdateTime(settings.getMinLocationUpdateTime());
+        setMinUpdateDistance(settings.getMinLocationUpdateDistance());
+        lastMode = mode;
         this.startListeningLocation();
     }
 
@@ -45,8 +54,12 @@ public class LocationService extends Service implements LocationListener {
 
     private void startListeningLocation() throws SecurityException {
         Log.d(TAG, "Start Listening Location");
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
+        if (mode == 2 || mode == 0) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minUpdateTime, minUpdateDistance, this);
+        }
+        if (mode == 2 || mode == 1) {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minUpdateTime, minUpdateDistance, this);
+        }
     }
 
     private void stopListeningLocation() throws SecurityException {
@@ -84,6 +97,18 @@ public class LocationService extends Service implements LocationListener {
         }
     }
 
+    public static void setMode(int m) {
+        mode = m;
+    }
+
+    public static void setMinUpdateTime(long time) {
+        minUpdateTime = time * 1000;
+    }
+
+    public static void setMinUpdateDistance(float distance) {
+        minUpdateDistance = distance;
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -92,6 +117,12 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+        // If the location mode changes, restart the location manager
+        if (lastMode != mode) {
+            this.stopListeningLocation();
+            this.startListeningLocation();
+        }
+
         Log.d(TAG, "Current Speed " + location.getSpeed() + " m/s");
         tracker.setCurrentSpeed(location.getSpeed());
         sendMessage(MSG_SPEED_CHANGED);

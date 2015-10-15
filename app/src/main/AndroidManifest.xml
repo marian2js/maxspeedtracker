@@ -23,7 +23,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.HistoryListActivity" >
-
         </activity>
 
         <service android:name=".services.LocationService" />
@@ -37,6 +36,10 @@
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>
