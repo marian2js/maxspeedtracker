@@ -1,6 +1,6 @@
 # Max Speed Tracker
 
-This is a WIP of my final project for the course [Introduction to mobile device programming](http://imoviles.alumnos.exa.unicen.edu.ar/).
+This is my project for the course [Introduction to mobile device programming](http://imoviles.alumnos.exa.unicen.edu.ar/).
 
 ## Assignation
 
